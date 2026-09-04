@@ -1,7 +1,12 @@
 from fastapi import FastAPI
 from fast_api_robust_apis.core.exceptions import InventoryError
 from fast_api_robust_apis.routers import routers
-from fast_api_robust_apis.core.error_handlers import inventory_exception_handler
+from fast_api_robust_apis.core.error_handlers import (
+    inventory_exception_handler,
+    sqlalchemy_exception_handler,
+    general_exception_handler,
+)
+from sqlalchemy.exc import SQLAlchemyError
 
 app = FastAPI(
     title="Inventory Management API",
@@ -9,6 +14,8 @@ app = FastAPI(
     version="1.0.0",
 )
 app.add_exception_handler(InventoryError, inventory_exception_handler)
+app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
+app.add_exception_handler(Exception, general_exception_handler)
 
 for router in routers:
     app.include_router(router)
