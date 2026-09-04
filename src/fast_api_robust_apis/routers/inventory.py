@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from fast_api_robust_apis.db.session import get_db
 from fast_api_robust_apis.crud.inventory import inventory_repository
+from fast_api_robust_apis.schemas.inventory import InventoryUpdate
 
 router = APIRouter(prefix="/inventory", tags=["Inventory"])
 
@@ -44,3 +45,14 @@ def get_inventory_by_location(location_id: int, db: Session = Depends(get_db)):
             }
         )
     return result
+
+
+@router.put("/")
+def update_inventory(update: InventoryUpdate, db: Session = Depends(get_db)):
+    """Update inventory stock levels (add or remove stock)"""
+    result = inventory_repository.update_stock(
+        db,
+        product_id=update.product_id,
+        location_id=update.location_id,
+        quantity_change=update.quantity_change,
+    )
