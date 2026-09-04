@@ -1,2 +1,5 @@
-def main() -> None:
-    print("Hello from fast-api-robust-apis!")
+import uvicorn
+
+
+def main():
+    uvicorn.run("fast_api_robust_apis.main:app", host="0.0.0.0", port=8000, reload=True)
