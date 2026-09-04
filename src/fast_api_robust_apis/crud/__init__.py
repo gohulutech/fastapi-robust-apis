@@ -1,0 +1,3 @@
+from fast_api_robust_apis.crud.product import product_repository
+from fast_api_robust_apis.crud.location import location_repository
+from fast_api_robust_apis.crud.inventory import inventory_repository
