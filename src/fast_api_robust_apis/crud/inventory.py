@@ -1,4 +1,8 @@
 from typing import List, Optional, Tuple
+from fast_api_robust_apis.core.exceptions import (
+    InsufficientStockError,
+    RecordNotFoundError,
+)
 from fast_api_robust_apis.db.models.inventory import InventoryItem
 from fast_api_robust_apis.db.models.location import Location
 from fast_api_robust_apis.db.models.product import Product
@@ -90,12 +94,25 @@ class InventoryRepository:
           - Item doesn't exist and quantity_change is negative
           - Item exists but would have negative quantity after change
         """
+        product = db.query(Product).filter(Product.id == product_id).first()
+        if not product:
+            raise RecordNotFoundError("Product", product_id)
+
+        location = db.query(Location).filter(Location.id == location_id).first()
+        if not location:
+            raise RecordNotFoundError("Location", location_id)
+
         inventory_item = self.get(db, product_id, location_id)
 
         if not inventory_item:
             # Don't allow negative stock for non-existent items
             if quantity_change <= 0:
-                return None
+                raise InsufficientStockError(
+                    product_id=product_id,
+                    location_id=location_id,
+                    requested=quantity_change,
+                    available=0,
+                )
 
             # Create new inventory item
             inventory_item = InventoryItem(
@@ -107,7 +124,12 @@ class InventoryRepository:
         else:
             # Don't allow negative stock
             if inventory_item.quantity + quantity_change < 0:
-                return None
+                raise InsufficientStockError(
+                    product_id=product_id,
+                    location_id=location_id,
+                    requested=quantity_change,
+                    available=inventory_item.quantity,
+                )
 
             # Update existing inventory item
             inventory_item.quantity += quantity_change

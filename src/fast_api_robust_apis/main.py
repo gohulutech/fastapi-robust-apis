@@ -1,11 +1,14 @@
 from fastapi import FastAPI
+from fast_api_robust_apis.core.exceptions import InventoryError
 from fast_api_robust_apis.routers import routers
+from fast_api_robust_apis.core.error_handlers import inventory_exception_handler
 
 app = FastAPI(
     title="Inventory Management API",
     description="API for managing inventory across multiple locations",
     version="1.0.0",
 )
+app.add_exception_handler(InventoryError, inventory_exception_handler)
 
 for router in routers:
     app.include_router(router)
