@@ -34,3 +34,26 @@ class ProductCreate(BaseModel):
         if v > 10000:
             raise ValueError("Price cannot exceed $10,000")
         return v
+
+
+class ProductResponse(BaseModel):
+    """Schema for creating a new product"""
+
+    id: int = Field(..., description="Unique product identifier")
+    name: str = (Field(..., description="Product name"),)
+    description: Optional[str] = (Field(None, description="Product description"),)
+    sku: str = (Field(..., description="Stock keeping unit code"),)
+    price: float = Field(..., description="Product price in USD")
+
+    model_config = {
+        "from_attributes": True,
+        "json_schema_extra": {
+            "example": {
+                "id": 1,
+                "name": "Wireless keyboard",
+                "description": "Ergonomic wireless keyboard with long battery",
+                "sku": "TEACH-101",
+                "price": 49.99,
+            }
+        },
+    }
